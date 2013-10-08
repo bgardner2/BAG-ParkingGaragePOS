@@ -1,5 +1,7 @@
 package bag.parkinggaragepos;
 
+import java.text.NumberFormat;
+
 
 /**
  * The AutomatedParkingMachine class's responsibilities are to keep track of all Tickets issued, and receipts given.
@@ -7,13 +9,11 @@ package bag.parkinggaragepos;
  * @author Ben
  */
 public class AutomatedParkingMachine {
-
-    /*
-     * numCarsInGarage is anunused variable at the moment. the thought behind this variable
-     * is that all garages have a maximum occupancy. If the maximum is met, checkin is not
-     * allowed
-     */ //private static int numCarsInGarage = 0; 
     private final String INVALID_INPUT = "Invalid input was entered into the AutomatedParkingMachine obect";
+    private final String CAR_NOT_FOUND_PART1 = "*******A car with an ID of ";
+    private final String CAR_NOT_FOUND_PART2 = " was not found in our system.*******";
+    
+    private NumberFormat nf = NumberFormat.getCurrencyInstance();
     private ParkingReceipt[] receipts = new ParkingReceipt[1];
     private ParkingTicket[] tickets = new ParkingTicket[1];
     private ParkingFeeManager feeManager;
@@ -62,7 +62,7 @@ public class AutomatedParkingMachine {
      * @param carID
      * @param hours 
      */
-    public void checkCarOut(int carID, double hours) {        
+    public void checkCarOut(int carID, double hours, Garage garage) {        
         boolean carFound = false;
 
         //Validate input
@@ -77,20 +77,49 @@ public class AutomatedParkingMachine {
                 this.calculateFee(hours);
                 pt.setCarCheckedOut(true);
                 this.addReceiptToArray(pt, hours);
+                this.outputReceipt(carID, garage);
 
             }
         }
         
         //If the car ID isn't found it outputs to the user that the car ID is invalid
         if (!carFound) {
-            System.out.println("*******A car with an ID of "
-                    + carID + " was not found in our system.*******");
+            System.out.println(CAR_NOT_FOUND_PART1
+                    + carID + CAR_NOT_FOUND_PART2 + '\n');
         }
     }
     
     /**
+     * This method outputs the receipt for a specific car ID
+     * @param carID 
+     */
+    private void outputReceipt(int carID, Garage garage){
+        
+        //Validate carID
+        if (carID < 0 || garage == null) {
+            throw new IllegalArgumentException(INVALID_INPUT);
+        }
+        
+        System.out.println("------------------------");
+        System.out.println(garage.getName() + "\t\t|" + '\n'
+                + garage.getStreet1() + "\t\t|" +'\n'
+                + garage.getCity() + ", " + garage.getState() + " " + garage.getZip() + "\t|\n\t\t\t|");
+        
+        for (ParkingReceipt pr : receipts) {
+            if (carID == pr.getCarID()) {
+                 System.out.println(pr.getHoursParked() + " hours parked \t|\n"
+                    + "fee charged: " + nf.format(pr.getFeePaid()) + "\t| \n"
+                    + "--------------------" + '\n');
+                 
+
+            }
+        }
+        
+    }
+    
+    /**
      * This method adds a Receipt object to the existing Receipt object array
-     * by passing in a ParkingTicket object refernce, and a specific number of
+     * by passing in a ParkingTicket object reference, and a specific number of
      * hours. Receipts are added the array only after a car has been checked out.
      * @param ticket
      * @param hours 
@@ -121,19 +150,21 @@ public class AutomatedParkingMachine {
     public void getTotalHoursAndFees() {
         double hoursParked = 0;
         double totalFees = 0;
+        
+        System.out.println("##### BEGIN DAILY CALCULATION #####");
         for (ParkingReceipt pr : receipts) {
             hoursParked += pr.getHoursParked();
             totalFees += pr.getFeePaid();
             System.out.println("Receipt for car with ID " + pr.getCarID() + ": "
                     + pr.getHoursParked() + " hours parked, "
-                    + "fee charged:"
-                    + pr.getFeePaid());
+                    + "fee charged: "
+                    + nf.format(pr.getFeePaid()));
         }
         
         System.out.println("------------------------\n"
                     +"Totals for garage today: "
                     + hoursParked + " hours charged, "
-                    + totalFees + " collected.\n");
+                    + nf.format(totalFees) + " collected.\n");
     }
 
     /**

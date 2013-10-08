@@ -45,7 +45,7 @@ class Garage {
             throw new IllegalArgumentException(INVALID_INPUT);
             
         }
-        apm.checkCarOut(carID, hours);
+        apm.checkCarOut(carID, hours, this);
         
     }
     
