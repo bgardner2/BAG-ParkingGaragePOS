@@ -1,0 +1,7 @@
+Driver
+Ticket - interface
+AutomatedParkingMachine
+Input - interface
+Output - interface
+Garage (Company) - interface
+CarDatabase
