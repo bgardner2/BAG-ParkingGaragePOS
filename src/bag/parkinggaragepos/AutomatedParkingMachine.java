@@ -1,18 +1,26 @@
 package bag.parkinggaragepos;
 
+import filesystem.*;
+import java.io.IOException;
 import java.text.NumberFormat;
-
+import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
- * The AutomatedParkingMachine class's responsibilities are to keep track of all Tickets issued, and receipts given.
- * In addition it delegates responsibilities to the ParkingFeeManager class to calculate parking fees.
+ * The AutomatedParkingMachine class's responsibilities are to keep track of all
+ * Tickets issued, and receipts given. In addition it delegates responsibilities
+ * to the ParkingFeeManager class to calculate parking fees.
+ *
  * @author Ben
  */
 public class AutomatedParkingMachine {
+
     private final String INVALID_INPUT = "Invalid input was entered into the AutomatedParkingMachine obect";
     private final String CAR_NOT_FOUND_PART1 = "*******A car with an ID of ";
     private final String CAR_NOT_FOUND_PART2 = " was not found in our system.*******";
-    
+    private String dataFilePath = "src/garageData.txt";
+    FileService fileService;
     private NumberFormat nf = NumberFormat.getCurrencyInstance();
     private ParkingReceipt[] receipts = new ParkingReceipt[1];
     private ParkingTicket[] tickets = new ParkingTicket[1];
@@ -24,8 +32,14 @@ public class AutomatedParkingMachine {
      *
      * @param pcs
      */
-    public AutomatedParkingMachine(ParkingFeeCalculatorStrategy pcs) {
-        if(pcs == null){
+    public AutomatedParkingMachine(ParkingFeeCalculatorStrategy pcs) throws IOException {
+        try {
+            this.fileService = AbstractFileServiceFactory.getFileServiceInstance();
+        } catch (IOException ex) {
+            throw new IOException("Error reading the config file.");
+        }
+
+        if (pcs == null) {
             throw new IllegalArgumentException(INVALID_INPUT);
         }
         feeManager = new ParkingFeeManager(pcs);
@@ -36,15 +50,27 @@ public class AutomatedParkingMachine {
      * id
      *
      */
-    public void checkCarIn() {
+    public void checkCarIn() throws IOException {
+        int highestCarIdInDataFile = 1;
+
+        try {
+            int recordsInFile = fileService.readFile("src/garageData.txt").size();
+            if (recordsInFile > 0) {
+                highestCarIdInDataFile = recordsInFile + 1;
+            }
+            System.out.println(recordsInFile + " , " + highestCarIdInDataFile);
+        } catch (IOException ex) {
+
+            throw new IOException("Problem with file path");
+        }
 
         if (tickets[0] == null) {
-            tickets[0] = new ParkingTicket();
+            tickets[0] = new ParkingTicket(highestCarIdInDataFile);
             return;
         }
         this.addTicketToArray();
     }
-    
+
     /**
      * This method adds a Ticket object to the existing Ticket object array
      */
@@ -56,50 +82,110 @@ public class AutomatedParkingMachine {
         tempArray[tempArray.length - 1] = newTicket;
         tickets = tempArray;
     }
+
     /**
      * This method checks out a specific car by it's ID and does so by passing
      * an explicit number of hours the car was parked.
+     *
      * @param carID
-     * @param hours 
+     * @param hours
+     * @param  garage
      */
-    public void checkCarOut(int carID, double hours, Garage garage) {        
+    public String checkCarOut(int carID, double hours, Garage garage) {
         boolean carFound = false;
-
+        String output = "";
         //Validate input
         if (carID < 0 || hours < 0) {
             throw new IllegalArgumentException(INVALID_INPUT);
         }
-
         //This loop finds ticket in the tickets array by carID and calculates it's fee
         for (ParkingTicket pt : tickets) {
-            if (carID == pt.getCarID()) {
+            if (carID == pt.getCarID() && !pt.isCarCheckedOut()) {
                 carFound = true;
                 this.calculateFee(hours);
                 pt.setCarCheckedOut(true);
                 this.addReceiptToArray(pt, hours);
-                this.outputReceipt(carID, garage);
-
+                output = this.outputReceipt(carID);
+                addCarTotaltoFile(carID, hours);
             }
         }
-        
+
         //If the car ID isn't found it outputs to the user that the car ID is invalid
         if (!carFound) {
             System.out.println(CAR_NOT_FOUND_PART1
                     + carID + CAR_NOT_FOUND_PART2 + '\n');
         }
+
+        return output;
+    }
+
+    
+    
+        /**
+     * This method checks out a specific car by it's ID and does so by passing
+     * an explicit number of hours the car was parked.
+     *
+     * @param carID
+     * @param hours
+     */
+    public String checkCarOut(int carID, double hours) {
+        boolean carFound = false;
+        String output = "";
+        //Validate input
+        if (carID < 0 || hours < 0) {
+            throw new IllegalArgumentException(INVALID_INPUT);
+        }
+        //This loop finds ticket in the tickets array by carID and calculates it's fee
+        for (ParkingTicket pt : tickets) {
+            if (carID == pt.getCarID() && !pt.isCarCheckedOut()) {
+                carFound = true;
+                this.calculateFee(hours);
+                pt.setCarCheckedOut(true);
+                this.addReceiptToArray(pt, hours);
+                output = this.outputReceipt(carID);
+                addCarTotaltoFile(carID, hours);
+            }
+        }
+
+        //If the car ID isn't found it outputs to the user that the car ID is invalid
+        if (!carFound) {
+            System.out.println(CAR_NOT_FOUND_PART1
+                    + carID + CAR_NOT_FOUND_PART2 + '\n');
+        }
+
+        return output;
     }
     
+    
+    
+    
+    private void addCarTotaltoFile(int carID, double hours) {
+        List carEntryData = new ArrayList<Map<String, String>>();
+        Map record = new LinkedHashMap<String, String>();
+
+        record.put("id", String.valueOf(carID));
+        record.put("totalHours", String.valueOf(hours));
+        record.put("totalFee", String.valueOf(this.calculateFee(hours)));
+
+        carEntryData.add(record);
+        fileService.appendToFile(dataFilePath, carEntryData);
+
+    }
+
     /**
-     * This method outputs the receipt for a specific car ID
-     * @param carID 
+     * This method outputs the receipt for a specific car ID in a specific
+     * garage
+     *
+     * @param carID
+     * @param garage
      */
-    private void outputReceipt(int carID, Garage garage){
-        
+    private void outputReceipt(int carID, Garage garage) {
+        String output = "";
         //Validate carID
         if (carID < 0 || garage == null) {
             throw new IllegalArgumentException(INVALID_INPUT);
         }
-        
+
         System.out.println("------------------------");
         System.out.println(garage.getName() + "\t\t|" + '\n'
                 + garage.getStreet1() + "\t\t|" +'\n'
@@ -114,28 +200,64 @@ public class AutomatedParkingMachine {
 
             }
         }
-        
+
     }
-    
+
     /**
-     * This method adds a Receipt object to the existing Receipt object array
-     * by passing in a ParkingTicket object reference, and a specific number of
-     * hours. Receipts are added the array only after a car has been checked out.
-     * @param ticket
-     * @param hours 
+     * This method outputs the receipt for a specific car ID in a specific
+     * garage
+     *
+     * @param carID
+     * @param garage
      */
-    private void addReceiptToArray(ParkingTicket ticket, double hours) {
-        //Validate input
-        if(ticket == null || hours < 0){
+    private String outputReceipt(int carID) {
+        String output = "";
+        //Validate carID
+        if (carID < 0 ) {
             throw new IllegalArgumentException(INVALID_INPUT);
         }
         
+        for (ParkingReceipt pr : receipts) {
+            if (pr.getCarID() == carID) {
+                output += pr.getCarID() + "\t\t" + pr.getHoursParked() + "\t\t" + pr.getFeePaid() + "\n";
+            }
+        }
+        
+        return output;
+
+    }
+    
+    public String readDataContentsAndOutput() throws IOException{
+        String output = "";
+        List<Map<String,String>> data = new ArrayList<Map<String, String>>();
+        data = fileService.readFile("src/garageData.txt");
+        for(Map<String, String> map : data){
+            output += map.get("id") + "\t\t" + map.get("totalHours") + "\t\t" + map.get("totalFee") + '\n' ;
+        }
+        return output;
+    }
+
+    /**
+     * This method adds a Receipt object to the existing Receipt object array by
+     * passing in a ParkingTicket object reference, and a specific number of
+     * hours. Receipts are added the array only after a car has been checked
+     * out.
+     *
+     * @param ticket
+     * @param hours
+     */
+    private void addReceiptToArray(ParkingTicket ticket, double hours) {
+        //Validate input
+        if (ticket == null || hours < 0) {
+            throw new IllegalArgumentException(INVALID_INPUT);
+        }
+
         //Check to see if there are any objercts in the ParkingReceipt array, if not add to first slot
-        if(receipts[0] == null){
+        if (receipts[0] == null) {
             receipts[0] = new ParkingReceipt(ticket.getCarID(), hours, this.calculateFee(hours));
             return;
         }
-        
+
         //Increase array size, copy the old array into the new array
         ParkingReceipt newReceipt = new ParkingReceipt(ticket.getCarID(), hours, this.calculateFee(hours));
         ParkingReceipt[] tempArray = new ParkingReceipt[receipts.length + 1];
@@ -145,26 +267,30 @@ public class AutomatedParkingMachine {
     }
 
     /**
-     * This method returns the total number of hours and fees the garage has collected
+     * This method returns the total number of hours and fees the garage has
+     * collected
      */
-    public void getTotalHoursAndFees() {
+    public String getTotalHoursAndFees() {
         double hoursParked = 0;
         double totalFees = 0;
-        
-        System.out.println("##### BEGIN DAILY CALCULATION #####");
+        String output = null;
+
+//        System.out.println("##### BEGIN DAILY CALCULATION #####");
         for (ParkingReceipt pr : receipts) {
             hoursParked += pr.getHoursParked();
             totalFees += pr.getFeePaid();
-            System.out.println("Receipt for car with ID " + pr.getCarID() + ": "
-                    + pr.getHoursParked() + " hours parked, "
-                    + "fee charged: "
-                    + nf.format(pr.getFeePaid()));
+//            System.out.println("Receipt for car with ID " + pr.getCarID() + ": "
+//                    + pr.getHoursParked() + " hours parked, "
+//                    + "fee charged: "
+//                    + nf.format(pr.getFeePaid()));
         }
-        
-        System.out.println("------------------------\n"
-                    +"Totals for garage today: "
-                    + hoursParked + " hours charged, "
-                    + nf.format(totalFees) + " collected.\n");
+
+//        System.out.println("------------------------\n"
+        output = "Totals for garage today: "
+                + hoursParked + " hours charged, "
+                + nf.format(totalFees) + " collected.";
+//                );
+        return output;
     }
 
     /**
@@ -193,78 +319,102 @@ public class AutomatedParkingMachine {
             }
         }
     }
-    
-    
+
+    public String getDataFilePath() {
+        return dataFilePath;
+    }
+
+    public void setDataFilePath(String dataFilePath) {
+        this.dataFilePath = dataFilePath;
+    }
+
+    public String printarray() {
+        String output = "";
+//        Vector v = new Vector<ParkingReceipt>();
+        System.out.println(receipts.length);
+        for (ParkingReceipt pr : receipts) {
+            //System.out.println(pr);
+//            v.add(pr.getCarID() + "                 " + pr.getHoursParked() + "             " + pr.getFeePaid());
+//            v.add(this.getTotalHoursAndFees());
+            output += pr.getCarID() + "\t\t" + pr.getHoursParked() + "\t\t" + pr.getFeePaid() + "\n";
+        }
+        return output + this.getTotalHoursAndFees();
+        //Vector v = new Vector<ParkingTicket>(Arrays.asList(tickets));
+//        return v;
+    }
+
     // <editor-fold defaultstate="collapsed" desc="Currently unsupported operations">
     /**
      * This method checks out a specific car by it's ID. It searches for the id,
-     * if found it will calculate the fee based on the ticket that contains that 
+     * if found it will calculate the fee based on the ticket that contains that
      * specific ID
-     * @param ticket 
+     *
+     * @param ticket
      */
-    public void checkCarOut(int carID) { 
+    public void checkCarOut(int carID) {
         throw new UnsupportedOperationException("Not supported yet.");
         /*
-        boolean carFound = false;
+         boolean carFound = false;
 
-        //Validate input
-        if (carID < 0) {
-            throw new IllegalArgumentException(INVALID_INPUT);
-        }
+         //Validate input
+         if (carID < 0) {
+         throw new IllegalArgumentException(INVALID_INPUT);
+         }
 
-        //This loop finds ticket in the tickets array by carID and calculates it's fee
-        for (ParkingTicket pt : tickets) {
-            if (carID == pt.getCarID()) {
-                carFound = true;
-                this.calculateFee(pt);
-                pt.setCarCheckedOut(true);
-                this.addReceiptToArray(pt);
+         //This loop finds ticket in the tickets array by carID and calculates it's fee
+         for (ParkingTicket pt : tickets) {
+         if (carID == pt.getCarID()) {
+         carFound = true;
+         this.calculateFee(pt);
+         pt.setCarCheckedOut(true);
+         this.addReceiptToArray(pt);
 
-            }
-        }
+         }
+         }
         
-        //If the car ID isn't found it outputs to the user that the car ID is invalid
-        if (!carFound) {
-            System.out.println("*******A car with an ID of "
-                    + carID + " was not found in our system.*******");
-        }
-        */
+         //If the car ID isn't found it outputs to the user that the car ID is invalid
+         if (!carFound) {
+         System.out.println("*******A car with an ID of "
+         + carID + " was not found in our system.*******");
+         }
+         */
     }
-    
+
     /**
-     * This method will add a reciept to the array by passing in a 
-     * ParkingTicket object reference. Receipts are added the array
-     * only after a car has been checked out.
-     * @param ticket 
+     * This method will add a reciept to the array by passing in a ParkingTicket
+     * object reference. Receipts are added the array only after a car has been
+     * checked out.
+     *
+     * @param ticket
      */
     private void addReceiptToArray(ParkingTicket ticket) {
         throw new UnsupportedOperationException("Not supported yet.");
-        
+
         /*
-        //double hours; //This will hold the hours, calculated based on difference in checkin time and checkout time
-        double fee = this.calculateFee(ticket);
+         //double hours; //This will hold the hours, calculated based on difference in checkin time and checkout time
+         double fee = this.calculateFee(ticket);
         
         
-        //Validate input
-        if(ticket == null){
-            throw new IllegalArgumentException(INVALID_INPUT);
-        }
+         //Validate input
+         if(ticket == null){
+         throw new IllegalArgumentException(INVALID_INPUT);
+         }
         
-        //Check to see if there are any objercts in the ParkingReceipt array, if not add to first slot
-        if(receipts[0] == null){
-            receipts[0] = new ParkingReceipt(ticket);
-            return;
-        }
+         //Check to see if there are any objercts in the ParkingReceipt array, if not add to first slot
+         if(receipts[0] == null){
+         receipts[0] = new ParkingReceipt(ticket);
+         return;
+         }
         
-        //Increase array size, copy the old array into the new array
-        ParkingReceipt newReceipt = new ParkingReceipt(ticket);
-        ParkingReceipt[] tempArray = new ParkingReceipt[receipts.length + 1];
-        System.arraycopy(receipts, 0, tempArray, 0, receipts.length);
-        tempArray[tempArray.length - 1] = newReceipt;
-        receipts = tempArray;
-        */
+         //Increase array size, copy the old array into the new array
+         ParkingReceipt newReceipt = new ParkingReceipt(ticket);
+         ParkingReceipt[] tempArray = new ParkingReceipt[receipts.length + 1];
+         System.arraycopy(receipts, 0, tempArray, 0, receipts.length);
+         tempArray[tempArray.length - 1] = newReceipt;
+         receipts = tempArray;
+         */
     }
-    
+
     /**
      * This will calculate the fee for a specific ticket
      *
@@ -274,13 +424,11 @@ public class AutomatedParkingMachine {
     private double calculateFee(ParkingTicket ticket) {
         throw new UnsupportedOperationException("Not supported yet.");
         /*
-        if (ticket == null) {
-            throw new IllegalArgumentException(INVALID_INPUT);
-        }
-        return feeManager.calculateFee(ticket);
-        */
+         if (ticket == null) {
+         throw new IllegalArgumentException(INVALID_INPUT);
+         }
+         return feeManager.calculateFee(ticket);
+         */
     }
-    
     // </editor-fold>
 }
-

@@ -1,5 +1,7 @@
 package bag.parkinggaragepos;
 
+import java.util.Objects;
+
 /**
  * BestValueFeeCalculator is a low-level module to calculate fees based on Best Value garages required fee 
  * specifications.
@@ -7,6 +9,7 @@ package bag.parkinggaragepos;
  */
 public class BestValueFeeCalculator implements ParkingFeeCalculatorStrategy{
     private final String INVALID_INPUT ="You entered invalid input into the BestValueFeeCalculator object";
+    private String id = "BestValueFeeCalculator";
     private double minimumFee = 2.00;
     private double maximumFee = 10.00;
     private double minimumHours = 3.00;
@@ -59,6 +62,33 @@ public class BestValueFeeCalculator implements ParkingFeeCalculatorStrategy{
         }
         
         return fee;
+    }
+
+    @Override
+    public String toString() {
+        return "Best Value Fee Calculator";
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 5;
+        hash = 43 * hash + Objects.hashCode(this.id);
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final BestValueFeeCalculator other = (BestValueFeeCalculator) obj;
+        if (!Objects.equals(this.id, other.id)) {
+            return false;
+        }
+        return true;
     }
     
     

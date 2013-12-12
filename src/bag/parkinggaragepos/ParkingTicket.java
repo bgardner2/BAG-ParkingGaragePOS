@@ -1,7 +1,9 @@
 package bag.parkinggaragepos;
 
+import java.io.Serializable;
 import java.util.Calendar;
 import java.util.Date;
+
 
 /**
  * The parking ticket class keeps track of all data pertaining to a specific car that is currently parked
@@ -9,7 +11,7 @@ import java.util.Date;
  * specific car has already been checked out.
  * @author Ben
  */
-public class ParkingTicket {
+public class ParkingTicket implements Serializable {
     private final String INVALID_INPUT = "You entered invalid input into the ParkingReceipt object";
     private static int ticketNumber = 0; 
     
@@ -23,10 +25,15 @@ public class ParkingTicket {
      * It does so this to ensure guaranteed unique carIDs
      */
     public ParkingTicket(){
-        ticketNumber++;
+        ++ticketNumber;
         this.carID = ticketNumber;
         
-    }    
+    }  
+    
+    ParkingTicket(int ticketNumber){
+        this.ticketNumber = ticketNumber;
+        this.carID = ticketNumber;
+    }
     
     /**
      * Returns the date/time when the ticket was instantiated
@@ -37,9 +44,7 @@ public class ParkingTicket {
     }
     
     // <editor-fold defaultstate="collapsed" desc="Getters and Setters">
-    public static int getReceiptNumber() {
-        return ticketNumber;
-    }
+    
         
     public int getCarID() {
         return carID;
@@ -55,14 +60,43 @@ public class ParkingTicket {
         }
         this.carCheckedOut = carCheckedOut;
     }
+    
+    public static int getTicketNumber() {
+        return ticketNumber;
+    }
+
+    public  void setTicketNumber(int ticketNumber) {
+        this.ticketNumber = ticketNumber;
+    }
+    
      
     // </editor-fold>
+    @Override
+    public int hashCode() {
+        int hash = 5;
+        hash = 53 * hash + this.carID;
+        return hash;
+    }
 
-    
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final ParkingTicket other = (ParkingTicket) obj;
+        if (this.carID != other.carID) {
+            return false;
+        }
+        return true;
+    }
 
-   
-
-    
+    @Override
+    public String toString() {
+        return "ParkingTicket{" + "carID=" + carID + ", calendar=" + calendar + ", date=" + date + ", carCheckedOut=" + carCheckedOut + '}';
+    }
     
     
     

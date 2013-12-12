@@ -1,5 +1,7 @@
 package bag.parkinggaragepos;
 
+import java.util.Objects;
+
 /**
  * ThriftFeeCalculator is a low-level module to calculate fees based on Thrifty garages required fee 
  * specifications.
@@ -7,6 +9,7 @@ package bag.parkinggaragepos;
  */
 public class ThriftyFeeCalculator implements ParkingFeeCalculatorStrategy{
     private final String INVALID_INPUT ="You entered invalid input into the ThriftyFeeCalculator object";
+    private String id = "ThriftFeeCalculator";
     private double minimumFee = 1.50;
     private double minimumHours = 2.00;
     private double hourlyFee = 0.75;
@@ -52,6 +55,33 @@ public class ThriftyFeeCalculator implements ParkingFeeCalculatorStrategy{
         }
         
         return fee;
+    }
+
+    @Override
+    public String toString() {
+        return "Thrifty Fee Calculator";
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 5;
+        hash = 41 * hash + Objects.hashCode(this.id);
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final ThriftyFeeCalculator other = (ThriftyFeeCalculator) obj;
+        if (!Objects.equals(this.id, other.id)) {
+            return false;
+        }
+        return true;
     }
 
     

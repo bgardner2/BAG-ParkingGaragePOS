@@ -41,9 +41,10 @@ public class ParkingReceipt {
     }
     
     /**
-     * ****UnsupportedOperation*****
+     * 
      * This method will create a receipt based on a ticket object that is passed in.
      * It will get the car ID, hours parked, and fee paid all from the ticket Object.
+     * @throws UnsupportedOperationException - This operation uses dates to calculate time parked and is not supported yet
      * @param ticket 
      */
     public ParkingReceipt(ParkingTicket ticket){
@@ -53,6 +54,7 @@ public class ParkingReceipt {
     
     /**
      * This method is not fully functioning yet.
+     * @throws UnsupportedOperationException - This operation uses dates to calculate time parked and is not supported yet
      * @param garage 
      */
     public void outputReceipt(Garage garage){

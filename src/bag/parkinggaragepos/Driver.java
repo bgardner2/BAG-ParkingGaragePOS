@@ -1,5 +1,7 @@
 package bag.parkinggaragepos;
 
+import java.io.IOException;
+
 /**
  * This driver class makes an example of what this project is supposed to do. It
  * is the main runnable class in this project.
@@ -14,11 +16,12 @@ public class Driver {
      * Build receipt for each receipt upon checkout
      */
 
-    public static void main(String[] args) {
-        Garage garage = GarageFactory
-                .getInstance()
-                .createGarage(GarageFactory.Garages.THRIFTY);
-
+    public static void main(String[] args) throws Exception{
+//        Garage garage = GarageFactory
+//                .getInstance()
+//                .createGarage(GarageFactory.Garages.THRIFTY);
+       Garage garage = AbstractGarageFactory.getGarageInstance();
+        System.out.println(ThriftyFeeCalculator.class);
         garage.checkCarIn();
         garage.checkCarIn();
         garage.checkCarIn();
