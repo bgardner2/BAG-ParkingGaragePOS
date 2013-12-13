@@ -6,6 +6,8 @@ package bag.parkinggaragepos;
 
 
 
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
 import java.io.*;
 import java.util.*;
 import javax.swing.JOptionPane;
@@ -16,22 +18,42 @@ import javax.swing.UIManager;
  * @author Ben
  */
 public class AdministrativeGUI extends javax.swing.JFrame {
-
-    File configFile = new File("src/config.properties");
+    private String configFilePath = System.getProperty("user.home") + File.separatorChar 
+            + "BAG-ParkingGaragePOS" + File.separatorChar + "config.properties";
+    
+    File configFile = new File(configFilePath);
     Properties props = new Properties();
     FileInputStream input;
     FileOutputStream output;
+    javax.swing.JFrame mainWindow = null;
 
     /**
      * Creates new form AdministrativeGUI
      */
-    public AdministrativeGUI() {
-
+    public AdministrativeGUI(javax.swing.JFrame mainWindow) {
+        this.mainWindow = mainWindow;
         initComponents();
-
+        this.setGUILook();
         this.getPropertiesFromFile();
-        
+        System.out.println(configFile);
 
+    }
+    /**
+     * This method attempts to get the the Look and Feel of the
+     * users system and assign that to this JFrame
+     */
+    private void setGUILook(){
+        try {
+            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+        } catch (ClassNotFoundException ex) {
+            JOptionPane.showMessageDialog(rootPane, ex.getMessage());
+        } catch (InstantiationException ex) {
+            JOptionPane.showMessageDialog(rootPane, ex.getMessage());
+        } catch (IllegalAccessException ex) {
+            JOptionPane.showMessageDialog(rootPane, ex.getMessage());
+        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
+            JOptionPane.showMessageDialog(rootPane, ex.getMessage());
+        }
     }
 
     private void getPropertiesFromFile(){
@@ -40,8 +62,8 @@ public class AdministrativeGUI extends javax.swing.JFrame {
             props.load(input);
             input.close();
             
-            ParkingFeeCalculatorStrategy configCalculator = (ParkingFeeCalculatorStrategy)Class.
-                    forName(props.getProperty("feeCalculator")).newInstance();
+            ParkingFeeCalculatorStrategy configCalculator = (ParkingFeeCalculatorStrategy) Class
+                    .forName(props.getProperty("feeCalculator")).newInstance();
             txtGarageName.setText(props.getProperty("garageName"));
             txtGarageStreet.setText(props.getProperty("garageStreet"));
             txtGarageCity.setText(props.getProperty("garageCity"));
@@ -52,7 +74,7 @@ public class AdministrativeGUI extends javax.swing.JFrame {
         } catch (FileNotFoundException fnfe) {
             JOptionPane.showMessageDialog(rootPane, fnfe.getMessage());
         } catch (IOException ioe) {
-            JOptionPane.showMessageDialog(rootPane, ioe.getMessage());
+            JOptionPane.showMessageDialog(rootPane,ioe.getMessage());
         } catch (ClassNotFoundException cnfe) {
             JOptionPane.showMessageDialog(rootPane, cnfe.getMessage());
         } catch (InstantiationException ie) {
@@ -84,9 +106,16 @@ public class AdministrativeGUI extends javax.swing.JFrame {
         cboCalculatorOptions = new javax.swing.JComboBox(getCalculators());
         jLabel6 = new javax.swing.JLabel();
         txtGarageZip = new javax.swing.JTextField();
+        btnCancel = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setBounds(new java.awt.Rectangle(500, 200, 0, 0));
+        setResizable(false);
+        addWindowListener(new java.awt.event.WindowAdapter() {
+            public void windowClosing(java.awt.event.WindowEvent evt) {
+                formWindowClosing(evt);
+            }
+        });
 
         btnSaveSettings.setText("Save");
         btnSaveSettings.addActionListener(new java.awt.event.ActionListener() {
@@ -168,10 +197,9 @@ public class AdministrativeGUI extends javax.swing.JFrame {
                     .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                     .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                         .addComponent(cboGarageState, 0, 100, Short.MAX_VALUE)
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(txtGarageCity, javax.swing.GroupLayout.DEFAULT_SIZE, 100, Short.MAX_VALUE)
-                            .addComponent(txtGarageStreet)
-                            .addComponent(txtGarageName, javax.swing.GroupLayout.DEFAULT_SIZE, 100, Short.MAX_VALUE)))
+                        .addComponent(txtGarageCity, javax.swing.GroupLayout.DEFAULT_SIZE, 100, Short.MAX_VALUE)
+                        .addComponent(txtGarageStreet)
+                        .addComponent(txtGarageName, javax.swing.GroupLayout.DEFAULT_SIZE, 100, Short.MAX_VALUE))
                     .addContainerGap(399, Short.MAX_VALUE)))
         );
         jPanel1Layout.setVerticalGroup(
@@ -210,6 +238,13 @@ public class AdministrativeGUI extends javax.swing.JFrame {
                     .addContainerGap(47, Short.MAX_VALUE)))
         );
 
+        btnCancel.setText("Cancel");
+        btnCancel.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnCancelActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -218,18 +253,22 @@ public class AdministrativeGUI extends javax.swing.JFrame {
                 .addContainerGap()
                 .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addContainerGap())
-            .addGroup(layout.createSequentialGroup()
-                .addGap(252, 252, 252)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(btnSaveSettings, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(btnCancel, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(203, 203, 203))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(btnSaveSettings, javax.swing.GroupLayout.PREFERRED_SIZE, 52, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(btnSaveSettings, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(btnCancel, javax.swing.GroupLayout.PREFERRED_SIZE, 52, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
@@ -249,6 +288,9 @@ public class AdministrativeGUI extends javax.swing.JFrame {
             output.close();
         } catch (Exception e) {
         }
+        
+        this.dispose();
+        mainWindow.setVisible(true);
     }//GEN-LAST:event_btnSaveSettingsActionPerformed
 
     private void txtFieldFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_txtFieldFocusGained
@@ -268,26 +310,36 @@ public class AdministrativeGUI extends javax.swing.JFrame {
 
     }//GEN-LAST:event_txtFieldFocusGained
 
+    private void btnCancelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCancelActionPerformed
+        this.dispose();
+        mainWindow.setVisible(true);
+    }//GEN-LAST:event_btnCancelActionPerformed
+
+    private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
+        // TODO add your handling code here:
+        mainWindow.setVisible(true);
+    }//GEN-LAST:event_formWindowClosing
+
     private Vector getCalculators() {
-        File dir = new File("src/bag/parkinggaragepos");
+        File dir = new File("build\\classes\\bag\\parkinggaragepos");
         String[] files = dir.list();
         Vector calculators = new Vector<ParkingFeeCalculatorStrategy>();
         ParkingFeeCalculatorStrategy calculator = null;
         for (String s : files) {
             try {
-                if (s.endsWith("Calculator.java")) {
-                    s = "bag.parkinggaragepos."+s.substring(0, s.length()-5);
+                if (s.endsWith("Calculator.class")) {
+                    s = "bag.parkinggaragepos."+s.substring(0, s.length()-6);
                     calculator = (ParkingFeeCalculatorStrategy) Class.forName(s).newInstance();
                     System.out.println(calculator.toString());
                     calculators.add(calculator);
                     //System.out.println(s);
                 }
             } catch (ClassNotFoundException cnfe) {
-                JOptionPane.showMessageDialog(rootPane, cnfe.getMessage());
+                JOptionPane.showMessageDialog(rootPane,cnfe.getMessage());
             } catch (InstantiationException ie) {
                 JOptionPane.showMessageDialog(rootPane, ie.getMessage());
             } catch (IllegalAccessException iae) {
-                JOptionPane.showMessageDialog(rootPane, iae.getMessage());
+                JOptionPane.showMessageDialog(rootPane,  iae.getMessage());
             }
         }
         
@@ -295,43 +347,10 @@ public class AdministrativeGUI extends javax.swing.JFrame {
 
     }
 
-    /**
-     * @param args the command line arguments
-     */
-    public static void main(String args[]) {
-        /* Set the Nimbus look and feel */
-        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
-         */
-        try {
-//            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-//                if ("Nimbus".equals(info.getName())) {
-//                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
-//                    break;
-//                }
-//            }
-            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-        } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(AdministrativeGUI.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(AdministrativeGUI.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(AdministrativeGUI.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(AdministrativeGUI.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        }
-        //</editor-fold>
-
-        /* Create and display the form */
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                new AdministrativeGUI().setVisible(true);
-            }
-        });
-    }
+    
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton btnCancel;
     private javax.swing.JButton btnSaveSettings;
     private javax.swing.JComboBox cboCalculatorOptions;
     private javax.swing.JComboBox cboGarageState;
@@ -347,4 +366,6 @@ public class AdministrativeGUI extends javax.swing.JFrame {
     private javax.swing.JTextField txtGarageStreet;
     private javax.swing.JTextField txtGarageZip;
     // End of variables declaration//GEN-END:variables
+
+   
 }

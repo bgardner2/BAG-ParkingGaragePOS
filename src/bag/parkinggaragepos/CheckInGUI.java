@@ -22,11 +22,13 @@ import javax.swing.ListSelectionModel;
  */
 public class CheckInGUI extends javax.swing.JFrame {
     Garage garage = null;
+    JFrame mainWindow = null;
    
     /**
      * Creates new form CheckInGUI
      */
-    public CheckInGUI() {
+    public CheckInGUI(JFrame mainWindow) {
+        this.mainWindow = mainWindow;
         try {
             garage = AbstractGarageFactory.getGarageInstance();
         } catch (IOException ioe) {
@@ -185,7 +187,6 @@ public class CheckInGUI extends javax.swing.JFrame {
 
     private void btnCheckInActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCheckInActionPerformed
         try {
-            
             garage.checkCarIn();
         } catch (IOException ioe) {
             JOptionPane.showMessageDialog(rootPane, ioe.getMessage());
@@ -194,17 +195,21 @@ public class CheckInGUI extends javax.swing.JFrame {
         }catch(Exception ex){
             JOptionPane.showMessageDialog(rootPane, ex.getMessage());
         }
+        
+        try{
+            int ticketNumber = garage.getTicketNumber();
+            JOptionPane.showMessageDialog(null, "Your ticket number for checkout is: " + ticketNumber
+                    ,"Your Ticket Number: ",JOptionPane.INFORMATION_MESSAGE);
+        }
+        catch(IOException ioe){
+            JOptionPane.showMessageDialog(null, ioe.getMessage());
+        }
         btnCheckOut.setEnabled(true);
         
        
     }//GEN-LAST:event_btnCheckInActionPerformed
 
     private void btnCheckOutActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCheckOutActionPerformed
-//        if(Integer.parseInt(txtCarID.getText()) < 0 
-//                || Double.parseDouble(txtHours.getText()) < 0){
-//            JOptionPane.showMessageDialog(rootPane, "Car ID and Hours must be greated than 0",
-//                    "Invalid Input", JOptionPane.ERROR_MESSAGE);
-//        }
         
         int carID = Integer.parseInt(txtCarID.getText());
         double hours = Double.parseDouble(txtHours.getText());

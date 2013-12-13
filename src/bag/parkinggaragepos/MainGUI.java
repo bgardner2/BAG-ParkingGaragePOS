@@ -4,18 +4,138 @@
  */
 package bag.parkinggaragepos;
 
+import javax.swing.JOptionPane;
+import filesystem.*;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.swing.UIManager;
+
 /**
  *
  * @author Ben
  */
 public class MainGUI extends javax.swing.JFrame {
-    
+
+    private final static String configFilePath = System.getProperty("user.home")
+            + File.separatorChar + "BAG-ParkingGaragePOS" + File.separatorChar + "config.properties";
+    private final static String dataFilePath = System.getProperty("user.home")
+            + File.separatorChar + "BAG-ParkingGaragePOS" + File.separatorChar + "garageData.txt";
+    private final static String setupConfigFileMessage = "There seems to be the first time you have run the program. "
+                    + "Please setup your garage configuration.\nIf you need to make changes at a later date"
+            + " it is located at: " + configFilePath;
+    private boolean mainWindowVisibilty = true;
+
     /**
      * Creates new form MainGUI
      */
     public MainGUI() {
+        
+        
         initComponents();
         
+        this.setGUILook();
+
+        this.setupRequiredFiles();
+        this.setVisible(mainWindowVisibilty);
+
+    }
+
+    /**
+     * This methods checks to see if the directories %SYSTEM USER
+     * HOM%\BAG-ParkingGaragePOS\ exist, if not it will create them. Also it
+     * will check to see if the files config.properties and garageData.txt exist
+     * in that directory. If not it will create it and prepopulate the
+     * config.properties with generic data
+     */
+    private void setupRequiredFiles() {
+        List<String> filesToSetup = new ArrayList<>();
+        filesToSetup.add(configFilePath);
+        filesToSetup.add(dataFilePath);
+        boolean needToSetupConfigFile = false;
+
+        for (String s : filesToSetup) {
+            File file = new File(s);
+            if (file.exists()) {
+                return;
+            }
+            else {
+                needToSetupConfigFile = true;
+
+                List<String> fileDirectories = new ArrayList<>();
+
+                if (!file.exists()) {
+                    File newFile = new File(file.getParent());
+                    newFile.mkdirs();
+                    try {
+                        file.createNewFile();
+                    } catch (IOException ex) {
+                        JOptionPane.showMessageDialog(null, ex.getMessage());
+                    }
+                }
+            }
+        }
+
+        this.populatePropertiesFile();
+
+        if (needToSetupConfigFile) {
+            JOptionPane.showMessageDialog(null, setupConfigFileMessage, "", JOptionPane.INFORMATION_MESSAGE);
+            
+            new AdministrativeGUI(this).setVisible(true);
+            mainWindowVisibilty = false;
+        }
+    }
+
+    private void populatePropertiesFile() {
+        File configFile = new File(configFilePath);
+        PrintWriter pw = null;
+        try {
+            pw = new PrintWriter(new BufferedWriter(new FileWriter(configFile)));
+            pw.println("garageName=");
+            pw.println("garageStreet=");
+            pw.println("garageCity=");
+            pw.println("garageState=");
+            pw.println("garageZip=");
+
+            pw.println("fileWriter=filesystem.TextFileWriter");
+            pw.println("converter=filesystem.BensCustomGarageFormatConverter");
+            pw.println("fileReader=filesystem.TextFileReader");
+            pw.println("feeCalculator=bag.parkinggaragepos.BestValueFeeCalculator");
+
+            pw.println("garageDataFilePath=\""+ dataFilePath + "\"");
+        } catch (IOException ex) {
+            JOptionPane.showMessageDialog(null, ex.getMessage());
+        } finally {
+            try {
+                pw.close();
+            } catch (Exception ex) {
+            }
+        }
+    }
+
+    
+    private void setGUILook(){
+        try {
+            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+        } catch (ClassNotFoundException ex) {
+            JOptionPane.showMessageDialog(rootPane, ex.getMessage());
+        } catch (InstantiationException ex) {
+            JOptionPane.showMessageDialog(rootPane, ex.getMessage());
+        } catch (IllegalAccessException ex) {
+            JOptionPane.showMessageDialog(rootPane, ex.getMessage());
+        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
+            JOptionPane.showMessageDialog(rootPane, ex.getMessage());
+        }
     }
 
     /**
@@ -36,6 +156,7 @@ public class MainGUI extends javax.swing.JFrame {
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Garage Terminal 2000");
         setBounds(new java.awt.Rectangle(500, 200, 0, 0));
+        setResizable(false);
 
         jLabel1.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
         jLabel1.setText("How do you want to start the program?");
@@ -90,50 +211,18 @@ public class MainGUI extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnStartProgramActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnStartProgramActionPerformed
-        if(radioAdmin.isSelected()){
-            new AdministrativeGUI().setVisible(true);
-            this.dispose();
-        }else if(radioAttendence.isSelected()){
-            new CheckInGUI().setVisible(true);
+        if (radioAdmin.isSelected()) {
+            new AdministrativeGUI(this).setVisible(true);
+            this.setVisible(false);
+        }
+        else if (radioAttendence.isSelected()) {
+            new CheckInGUI(this).setVisible(true);
             this.setVisible(false);
         }
     }//GEN-LAST:event_btnStartProgramActionPerformed
-
     /**
      * @param args the command line arguments
      */
-    public static void main(String args[]) {
-        /* Set the Nimbus look and feel */
-        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
-         */
-        try {
-            javax.swing.UIManager.setLookAndFeel(javax.swing.UIManager.getSystemLookAndFeelClassName());
-//            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-//                if ("Nimbus".equals(info.getName())) {
-//                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
-//                    break;
-//                }
-//            }
-        } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(MainGUI.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(MainGUI.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(MainGUI.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(MainGUI.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        }
-        //</editor-fold>
-
-        /* Create and display the form */
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                new MainGUI().setVisible(true);
-            }
-        });
-    }
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnStartProgram;
     private javax.swing.ButtonGroup groupStartup;

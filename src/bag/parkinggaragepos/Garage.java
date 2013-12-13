@@ -44,6 +44,11 @@ public class Garage {
         
     }
     
+    public int getTicketNumber() throws IOException {
+        return apm.getTicketNumber();
+    }
+    
+    
     public void checkAllCarsOut(){
         apm.checkAllCarsOut();
     }
@@ -110,9 +115,7 @@ public class Garage {
         return "Garage{name=" + name + ", street1=" + street1 + ", city=" + city + ", state=" + state + ", zip=" + zip + '}';
     }
     
-    public String printarray(){
-       return apm.printarray();
-    }
+
     
     
     

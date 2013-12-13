@@ -1,6 +1,7 @@
 package bag.parkinggaragepos;
 
 import filesystem.*;
+import java.io.File;
 import java.io.IOException;
 import java.text.NumberFormat;
 import java.util.*;
@@ -19,7 +20,8 @@ public class AutomatedParkingMachine {
     private final String INVALID_INPUT = "Invalid input was entered into the AutomatedParkingMachine obect";
     private final String CAR_NOT_FOUND_PART1 = "*******A car with an ID of ";
     private final String CAR_NOT_FOUND_PART2 = " was not found in our system.*******";
-    private String dataFilePath = "src/garageData.txt";
+    private String dataFilePath = System.getProperty("user.home") + File.separatorChar + "BAG-ParkingGaragePOS"
+            + File.separatorChar + "garageData.txt";
     FileService fileService;
     private NumberFormat nf = NumberFormat.getCurrencyInstance();
     private ParkingReceipt[] receipts = new ParkingReceipt[1];
@@ -53,22 +55,30 @@ public class AutomatedParkingMachine {
     public void checkCarIn() throws IOException {
         int highestCarIdInDataFile = 1;
 
-        try {
-            int recordsInFile = fileService.readFile("src/garageData.txt").size();
-            if (recordsInFile > 0) {
-                highestCarIdInDataFile = recordsInFile + 1;
-            }
-            System.out.println(recordsInFile + " , " + highestCarIdInDataFile);
-        } catch (IOException ex) {
 
-            throw new IOException("Problem with file path");
+        int recordsInFile = fileService.readFile(dataFilePath).size();
+        if (recordsInFile > 0) {
+            highestCarIdInDataFile = recordsInFile + 1;
         }
+        System.out.println(recordsInFile + " , " + highestCarIdInDataFile);
+
 
         if (tickets[0] == null) {
             tickets[0] = new ParkingTicket(highestCarIdInDataFile);
             return;
         }
         this.addTicketToArray();
+    }
+
+    public int getTicketNumber() throws IOException {
+        int highestCarIdInDataFile = 1;
+
+
+        int recordsInFile = fileService.readFile(dataFilePath).size();
+        if (recordsInFile > 0) {
+            highestCarIdInDataFile = recordsInFile + 1;
+        }
+        return highestCarIdInDataFile;
     }
 
     /**
@@ -89,7 +99,7 @@ public class AutomatedParkingMachine {
      *
      * @param carID
      * @param hours
-     * @param  garage
+     * @param garage
      */
     public String checkCarOut(int carID, double hours, Garage garage) {
         boolean carFound = false;
@@ -119,9 +129,7 @@ public class AutomatedParkingMachine {
         return output;
     }
 
-    
-    
-        /**
+    /**
      * This method checks out a specific car by it's ID and does so by passing
      * an explicit number of hours the car was parked.
      *
@@ -145,6 +153,7 @@ public class AutomatedParkingMachine {
                 output = this.outputReceipt(carID);
                 addCarTotaltoFile(carID, hours);
             }
+            
         }
 
         //If the car ID isn't found it outputs to the user that the car ID is invalid
@@ -155,10 +164,7 @@ public class AutomatedParkingMachine {
 
         return output;
     }
-    
-    
-    
-    
+
     private void addCarTotaltoFile(int carID, double hours) {
         List carEntryData = new ArrayList<Map<String, String>>();
         Map record = new LinkedHashMap<String, String>();
@@ -188,15 +194,15 @@ public class AutomatedParkingMachine {
 
         System.out.println("------------------------");
         System.out.println(garage.getName() + "\t\t|" + '\n'
-                + garage.getStreet1() + "\t\t|" +'\n'
+                + garage.getStreet1() + "\t\t|" + '\n'
                 + garage.getCity() + ", " + garage.getState() + " " + garage.getZip() + "\t|\n\t\t\t|");
-        
+
         for (ParkingReceipt pr : receipts) {
             if (carID == pr.getCarID()) {
-                 System.out.println(pr.getHoursParked() + " hours parked \t|\n"
-                    + "fee charged: " + nf.format(pr.getFeePaid()) + "\t| \n"
-                    + "--------------------" + '\n');
-                 
+                System.out.println(pr.getHoursParked() + " hours parked \t|\n"
+                        + "fee charged: " + nf.format(pr.getFeePaid()) + "\t| \n"
+                        + "--------------------" + '\n');
+
 
             }
         }
@@ -213,26 +219,26 @@ public class AutomatedParkingMachine {
     private String outputReceipt(int carID) {
         String output = "";
         //Validate carID
-        if (carID < 0 ) {
+        if (carID < 0) {
             throw new IllegalArgumentException(INVALID_INPUT);
         }
-        
+
         for (ParkingReceipt pr : receipts) {
             if (pr.getCarID() == carID) {
-                output += pr.getCarID() + "\t\t" + pr.getHoursParked() + "\t\t" + pr.getFeePaid() + "\n";
+                output += pr.getCarID() + "\t\t" + pr.getHoursParked() + "\t\t" + nf.format(pr.getFeePaid()) + "\n";
             }
         }
-        
+
         return output;
 
     }
-    
-    public String readDataContentsAndOutput() throws IOException{
+
+    public String readDataContentsAndOutput() throws IOException {
         String output = "";
-        List<Map<String,String>> data = new ArrayList<Map<String, String>>();
-        data = fileService.readFile("src/garageData.txt");
-        for(Map<String, String> map : data){
-            output += map.get("id") + "\t\t" + map.get("totalHours") + "\t\t" + map.get("totalFee") + '\n' ;
+        List<Map<String, String>> data = new ArrayList<Map<String, String>>();
+        data = fileService.readFile(dataFilePath);
+        for (Map<String, String> map : data) {
+            output += map.get("id") + "\t\t" + map.get("totalHours") + "\t\t" + map.get("totalFee") + '\n';
         }
         return output;
     }
@@ -326,21 +332,6 @@ public class AutomatedParkingMachine {
 
     public void setDataFilePath(String dataFilePath) {
         this.dataFilePath = dataFilePath;
-    }
-
-    public String printarray() {
-        String output = "";
-//        Vector v = new Vector<ParkingReceipt>();
-        System.out.println(receipts.length);
-        for (ParkingReceipt pr : receipts) {
-            //System.out.println(pr);
-//            v.add(pr.getCarID() + "                 " + pr.getHoursParked() + "             " + pr.getFeePaid());
-//            v.add(this.getTotalHoursAndFees());
-            output += pr.getCarID() + "\t\t" + pr.getHoursParked() + "\t\t" + pr.getFeePaid() + "\n";
-        }
-        return output + this.getTotalHoursAndFees();
-        //Vector v = new Vector<ParkingTicket>(Arrays.asList(tickets));
-//        return v;
     }
 
     // <editor-fold defaultstate="collapsed" desc="Currently unsupported operations">
