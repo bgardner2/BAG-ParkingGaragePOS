@@ -15,8 +15,9 @@ public abstract class AbstractGarageFactory {
             + File.separatorChar + "BAG-ParkingGaragePOS" + File.separatorChar;
 
     /**
-     *
-     * @return @throws IOException
+     *This method pulls properties from a config.properties file 
+     * to create an instance of a Garage Object.
+     * @return @throws IOException - when trying to read the config.properties file
      */
     public static Garage getGarageInstance() throws IOException {
         Garage g = null;
@@ -28,7 +29,7 @@ public abstract class AbstractGarageFactory {
         String garageZip = null;
         String calculatorName = null;
         
-        //File file = new File("src/config.properties");
+        
 
         File file = new File(configFilePath, "config.properties");
         
@@ -65,10 +66,10 @@ public abstract class AbstractGarageFactory {
     }
 
 
-    /*
-     * Test
-     */
-    public static void main(String[] args) throws IOException {
-        Garage g = AbstractGarageFactory.getGarageInstance();
-    }
+//    /*
+//     * Test
+//     */
+//    public static void main(String[] args) throws IOException {
+//        Garage g = AbstractGarageFactory.getGarageInstance();
+//    }
 }

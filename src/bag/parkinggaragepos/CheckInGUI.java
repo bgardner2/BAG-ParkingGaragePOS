@@ -15,9 +15,11 @@ import java.util.logging.Logger;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.ListSelectionModel;
+import javax.swing.UIManager;
 
 /**
- *
+ *This class is designed to be the main interface that a garage customer
+ * sees. It is simply a check in and check out interface.
  * @author Ben
  */
 public class CheckInGUI extends javax.swing.JFrame {
@@ -25,7 +27,9 @@ public class CheckInGUI extends javax.swing.JFrame {
     JFrame mainWindow = null;
    
     /**
-     * Creates new form CheckInGUI
+     * This constructor attempts to create an instance of a Garage and
+     * populate a jTextArea with previous data from a data file.
+     * @param mainWindow - The window that called this frame. 
      */
     public CheckInGUI(JFrame mainWindow) {
         this.mainWindow = mainWindow;
@@ -44,8 +48,28 @@ public class CheckInGUI extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(rootPane, ioe.getMessage());
         }
         
+        this.setGUILook();
+        
     }
 
+    /**
+     * This method attempts to get the the Look and Feel of the
+     * users system and assign that to this JFrame
+     */
+    private void setGUILook(){
+        try {
+            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+        } catch (ClassNotFoundException ex) {
+            JOptionPane.showMessageDialog(rootPane, ex.getMessage());
+        } catch (InstantiationException ex) {
+            JOptionPane.showMessageDialog(rootPane, ex.getMessage());
+        } catch (IllegalAccessException ex) {
+            JOptionPane.showMessageDialog(rootPane, ex.getMessage());
+        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
+            JOptionPane.showMessageDialog(rootPane, ex.getMessage());
+        }
+    }
+    
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -185,6 +209,11 @@ public class CheckInGUI extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    /**
+     * This method checks the car into the system. It also alerts the user as to what their car id is
+     * for when they checkout.
+     * @param evt 
+     */
     private void btnCheckInActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCheckInActionPerformed
         try {
             garage.checkCarIn();
@@ -209,6 +238,12 @@ public class CheckInGUI extends javax.swing.JFrame {
        
     }//GEN-LAST:event_btnCheckInActionPerformed
 
+    
+    /**
+     * This method attempts to read information from the car id textbox and the 
+     * hours text box in order to check out a car, as well as write data to the jTextArea.
+     * @param evt 
+     */
     private void btnCheckOutActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCheckOutActionPerformed
         
         int carID = Integer.parseInt(txtCarID.getText());
@@ -224,55 +259,28 @@ public class CheckInGUI extends javax.swing.JFrame {
         
     }//GEN-LAST:event_btnCheckOutActionPerformed
 
+    /**
+     * This method allows the checkout method to be called
+     * by pressing the enter key on the keyboard
+     * @param evt 
+     */
     private void txtCarIDKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtCarIDKeyTyped
         if(evt.getKeyChar() == '\n'){
             this.btnCheckOutActionPerformed(null);
         }
     }//GEN-LAST:event_txtCarIDKeyTyped
 
+    /**
+     * This method allows the checkout method to be called
+     * by pressing the enter key on the keyboard
+     * @param evt 
+     */
     private void txtHoursKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtHoursKeyPressed
         if(evt.getKeyChar() == '\n'){
             this.btnCheckOutActionPerformed(null);
         }
     }//GEN-LAST:event_txtHoursKeyPressed
 
-    /**
-     * @param args the command line arguments
-     */
-//    public static void main(String args[]) {
-//        /* Set the Nimbus look and feel */
-//        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-//        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-//         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
-//         */
-//        try {
-//            javax.swing.UIManager.setLookAndFeel(javax.swing.UIManager.getSystemLookAndFeelClassName());
-////            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-////                if ("Nimbus".equals(info.getName())) {
-////                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
-////                    break;
-////                }
-////            }
-//        } catch (ClassNotFoundException ex) {
-//            java.util.logging.Logger.getLogger(CheckInGUI.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-//        } catch (InstantiationException ex) {
-//            java.util.logging.Logger.getLogger(CheckInGUI.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-//        } catch (IllegalAccessException ex) {
-//            java.util.logging.Logger.getLogger(CheckInGUI.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-//        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-//            java.util.logging.Logger.getLogger(CheckInGUI.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-//        }
-//        //</editor-fold>
-//
-//        /* Create and display the form */
-//        java.awt.EventQueue.invokeLater(new Runnable() {
-//            public void run() {
-//                new CheckInGUI().setVisible(true);
-//            }
-//        });
-//        
-//        
-//    }
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnCheckIn;
     private javax.swing.JButton btnCheckOut;

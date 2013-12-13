@@ -70,6 +70,14 @@ public class AutomatedParkingMachine {
         this.addTicketToArray();
     }
 
+    /**
+     * This method reads in the data file and gets it's size to know what number
+     * to assign to a car for check in.
+     *
+     * @return - the number of records in the file to be assigned as the next
+     * car id
+     * @throws IOException
+     */
     public int getTicketNumber() throws IOException {
         int highestCarIdInDataFile = 1;
 
@@ -79,6 +87,7 @@ public class AutomatedParkingMachine {
             highestCarIdInDataFile = recordsInFile + 1;
         }
         return highestCarIdInDataFile;
+
     }
 
     /**
@@ -91,6 +100,7 @@ public class AutomatedParkingMachine {
         System.arraycopy(tickets, 0, tempArray, 0, tickets.length);
         tempArray[tempArray.length - 1] = newTicket;
         tickets = tempArray;
+
     }
 
     /**
@@ -153,7 +163,7 @@ public class AutomatedParkingMachine {
                 output = this.outputReceipt(carID);
                 addCarTotaltoFile(carID, hours);
             }
-            
+
         }
 
         //If the car ID isn't found it outputs to the user that the car ID is invalid
@@ -165,6 +175,13 @@ public class AutomatedParkingMachine {
         return output;
     }
 
+    /**
+     * This method adds a line record to the data file. It writes the car id,
+     * the hours parked, and the fee charged to each line.
+     *
+     * @param carID - the id of the car that was checked in
+     * @param hours - the amount of the car was parked.
+     */
     private void addCarTotaltoFile(int carID, double hours) {
         List carEntryData = new ArrayList<Map<String, String>>();
         Map record = new LinkedHashMap<String, String>();
@@ -233,6 +250,13 @@ public class AutomatedParkingMachine {
 
     }
 
+    /**
+     * This method reads all the current data in the file and makes it a big
+     * string.
+     *
+     * @return - the output string of all the records in the data file.
+     * @throws IOException
+     */
     public String readDataContentsAndOutput() throws IOException {
         String output = "";
         List<Map<String, String>> data = new ArrayList<Map<String, String>>();
@@ -275,27 +299,23 @@ public class AutomatedParkingMachine {
     /**
      * This method returns the total number of hours and fees the garage has
      * collected
+     *
+     * 
      */
     public String getTotalHoursAndFees() {
         double hoursParked = 0;
         double totalFees = 0;
         String output = null;
 
-//        System.out.println("##### BEGIN DAILY CALCULATION #####");
         for (ParkingReceipt pr : receipts) {
             hoursParked += pr.getHoursParked();
             totalFees += pr.getFeePaid();
-//            System.out.println("Receipt for car with ID " + pr.getCarID() + ": "
-//                    + pr.getHoursParked() + " hours parked, "
-//                    + "fee charged: "
-//                    + nf.format(pr.getFeePaid()));
         }
 
-//        System.out.println("------------------------\n"
         output = "Totals for garage today: "
                 + hoursParked + " hours charged, "
                 + nf.format(totalFees) + " collected.";
-//                );
+
         return output;
     }
 
@@ -326,6 +346,7 @@ public class AutomatedParkingMachine {
         }
     }
 
+    
     public String getDataFilePath() {
         return dataFilePath;
     }
@@ -334,6 +355,38 @@ public class AutomatedParkingMachine {
         this.dataFilePath = dataFilePath;
     }
 
+    @Override
+    public int hashCode() {
+        int hash = 3;
+        hash = 59 * hash + Objects.hashCode(this.fileService);
+        hash = 59 * hash + Objects.hashCode(this.feeManager);
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final AutomatedParkingMachine other = (AutomatedParkingMachine) obj;
+        if (!Objects.equals(this.fileService, other.fileService)) {
+            return false;
+        }
+        if (!Objects.equals(this.feeManager, other.feeManager)) {
+            return false;
+        }
+        return true;
+    }
+
+    @Override
+    public String toString() {
+        return "AutomatedParkingMachine{" + "dataFilePath=" + dataFilePath + ", nf=" + nf + ", receipts=" + receipts + ", tickets=" + tickets + ", feeManager=" + feeManager + '}';
+    }
+
+    
     // <editor-fold defaultstate="collapsed" desc="Currently unsupported operations">
     /**
      * This method checks out a specific car by it's ID. It searches for the id,

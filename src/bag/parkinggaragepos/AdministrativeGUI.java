@@ -1,20 +1,14 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
+
 package bag.parkinggaragepos;
 
-
-
-import java.awt.event.WindowEvent;
-import java.awt.event.WindowListener;
 import java.io.*;
 import java.util.*;
 import javax.swing.JOptionPane;
 import javax.swing.UIManager;
 
 /**
- *
+ * This GUI class creates a user-interaction window to change settings for the Garages
+ * name, and the Fee Calculator that the program is to use.
  * @author Ben
  */
 public class AdministrativeGUI extends javax.swing.JFrame {
@@ -28,7 +22,10 @@ public class AdministrativeGUI extends javax.swing.JFrame {
     javax.swing.JFrame mainWindow = null;
 
     /**
-     * Creates new form AdministrativeGUI
+     * Constructor to create the Administrative GUI
+     * 
+     * @param  mainWindow - a JFrame parameter to manipulate the window
+     * that called the creation of the AdministrativeGUI
      */
     public AdministrativeGUI(javax.swing.JFrame mainWindow) {
         this.mainWindow = mainWindow;
@@ -56,6 +53,10 @@ public class AdministrativeGUI extends javax.swing.JFrame {
         }
     }
 
+    /**
+     * This method attempts to read properties from the config.properties file
+     * and then set input fields on the frame to those properties.
+     */
     private void getPropertiesFromFile(){
         try {
             this.input = new FileInputStream(configFile);
@@ -83,6 +84,7 @@ public class AdministrativeGUI extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(rootPane, iae.getMessage());
         }
     }
+    
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -275,6 +277,11 @@ public class AdministrativeGUI extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    /**
+     * This method pulls data from the input fields on the frame and sets
+     * the properties in the config.properties file according to those fields content
+     * @param evt 
+     */
     private void btnSaveSettingsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSaveSettingsActionPerformed
         props.setProperty("garageName", txtGarageName.getText());
         props.setProperty("garageStreet", txtGarageStreet.getText());
@@ -293,6 +300,11 @@ public class AdministrativeGUI extends javax.swing.JFrame {
         mainWindow.setVisible(true);
     }//GEN-LAST:event_btnSaveSettingsActionPerformed
 
+    /**
+     * This method allows all the text to be selected inside the text field
+     * when it gains focus
+     * @param evt 
+     */
     private void txtFieldFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_txtFieldFocusGained
 
         if (evt.getComponent().equals(txtGarageName)) {
@@ -310,16 +322,34 @@ public class AdministrativeGUI extends javax.swing.JFrame {
 
     }//GEN-LAST:event_txtFieldFocusGained
 
+    /**
+     * This method discards changes made to data in the input fields
+     * ,closes this window, and makes the mainWindow visible again.
+     * @param evt 
+     */
     private void btnCancelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCancelActionPerformed
         this.dispose();
         mainWindow.setVisible(true);
     }//GEN-LAST:event_btnCancelActionPerformed
 
+    
+    /**
+     * When the window close button is pressed, this method makes the mainWindow visible
+     * @param evt 
+     */
     private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
-        // TODO add your handling code here:
         mainWindow.setVisible(true);
     }//GEN-LAST:event_formWindowClosing
 
+    /**
+     * This method searches the "build\classes\bag\parkinggaragepos" folder
+     * for classes that end with "Calculator.class". This is useful if a custom
+     * fee calculator class is made. 
+     * 
+     * Custom fee calculator classes must be in a package "bag.parkinggaragepos"
+     * @return - a vector of calculators. Useful for populating a drop down list with usable
+     * objects
+     */
     private Vector getCalculators() {
         File dir = new File("build\\classes\\bag\\parkinggaragepos");
         String[] files = dir.list();

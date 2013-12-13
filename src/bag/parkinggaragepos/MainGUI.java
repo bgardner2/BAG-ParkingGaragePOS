@@ -5,7 +5,6 @@
 package bag.parkinggaragepos;
 
 import javax.swing.JOptionPane;
-import filesystem.*;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -13,16 +12,12 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
 import javax.swing.UIManager;
 
 /**
- *
+ *This class is meant to be the main startup
+ * window that a user sees.
  * @author Ben
  */
 public class MainGUI extends javax.swing.JFrame {
@@ -37,7 +32,8 @@ public class MainGUI extends javax.swing.JFrame {
     private boolean mainWindowVisibilty = true;
 
     /**
-     * Creates new form MainGUI
+     * When this constructor is called it initialized components,
+     * sets the look of the GUI, and sets up required files if necessary,
      */
     public MainGUI() {
         
@@ -96,6 +92,12 @@ public class MainGUI extends javax.swing.JFrame {
         }
     }
 
+    /**
+     * If necessary, this method will populate the config.properties file 
+     * with all the necessary properties needed to run the program.
+     * The user will at some point be required to set these properties for
+     * their own garage.
+     */
     private void populatePropertiesFile() {
         File configFile = new File(configFilePath);
         PrintWriter pw = null;
@@ -123,7 +125,10 @@ public class MainGUI extends javax.swing.JFrame {
         }
     }
 
-    
+    /**
+     * This method attempts to set the look and feel of the program
+     * to that of the native look of the user's machine.
+     */
     private void setGUILook(){
         try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
@@ -210,6 +215,11 @@ public class MainGUI extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    /**
+     * This method will determine which radio button is checked on the
+     * main screen and start up the proper window.
+     * @param evt 
+     */
     private void btnStartProgramActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnStartProgramActionPerformed
         if (radioAdmin.isSelected()) {
             new AdministrativeGUI(this).setVisible(true);

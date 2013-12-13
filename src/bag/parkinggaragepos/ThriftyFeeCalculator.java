@@ -18,7 +18,8 @@ public class ThriftyFeeCalculator implements ParkingFeeCalculatorStrategy{
      * This method is a work in progress. In order to work
      * it needs to calculate hours based off a Date.
      * @param ticket
-     * @return 
+     * @return
+     * @throws UnsupportedOperationException - because the calculation of time is not supported yet.
      */
 @Override
     public double calculateFee(ParkingTicket ticket) {

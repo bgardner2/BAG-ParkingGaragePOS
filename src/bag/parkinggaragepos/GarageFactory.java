@@ -6,6 +6,7 @@ import java.io.IOException;
  * The GarageFactory class is a factory that produces a returns a garage object. It creates and returns a garage
  * based on a public enumeration list that gives users the options of what garage/company to create an instance of.
  * @author Ben
+ * @deprecated 
  */
 
 public class GarageFactory {
