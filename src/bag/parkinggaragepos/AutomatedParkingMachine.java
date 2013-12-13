@@ -60,7 +60,7 @@ public class AutomatedParkingMachine {
         if (recordsInFile > 0) {
             highestCarIdInDataFile = recordsInFile + 1;
         }
-        System.out.println(recordsInFile + " , " + highestCarIdInDataFile);
+        
 
 
         if (tickets[0] == null) {
@@ -111,7 +111,7 @@ public class AutomatedParkingMachine {
      * @param hours
      * @param garage
      */
-    public String checkCarOut(int carID, double hours, Garage garage) {
+    public String checkCarOut(int carID, double hours, Garage garage) throws IllegalArgumentException{
         boolean carFound = false;
         String output = "";
         //Validate input
@@ -131,10 +131,12 @@ public class AutomatedParkingMachine {
         }
 
         //If the car ID isn't found it outputs to the user that the car ID is invalid
+        
         if (!carFound) {
-            System.out.println(CAR_NOT_FOUND_PART1
-                    + carID + CAR_NOT_FOUND_PART2 + '\n');
+            throw new CarNotFoundException(CAR_NOT_FOUND_PART1
+                    + carID + CAR_NOT_FOUND_PART2);
         }
+        
 
         return output;
     }
@@ -168,8 +170,8 @@ public class AutomatedParkingMachine {
 
         //If the car ID isn't found it outputs to the user that the car ID is invalid
         if (!carFound) {
-            System.out.println(CAR_NOT_FOUND_PART1
-                    + carID + CAR_NOT_FOUND_PART2 + '\n');
+            throw new CarNotFoundException(CAR_NOT_FOUND_PART1
+                    + carID + CAR_NOT_FOUND_PART2);
         }
 
         return output;
@@ -201,28 +203,29 @@ public class AutomatedParkingMachine {
      *
      * @param carID
      * @param garage
+     * @deprecated 
      */
     private void outputReceipt(int carID, Garage garage) {
-        String output = "";
-        //Validate carID
-        if (carID < 0 || garage == null) {
-            throw new IllegalArgumentException(INVALID_INPUT);
-        }
-
-        System.out.println("------------------------");
-        System.out.println(garage.getName() + "\t\t|" + '\n'
-                + garage.getStreet1() + "\t\t|" + '\n'
-                + garage.getCity() + ", " + garage.getState() + " " + garage.getZip() + "\t|\n\t\t\t|");
-
-        for (ParkingReceipt pr : receipts) {
-            if (carID == pr.getCarID()) {
-                System.out.println(pr.getHoursParked() + " hours parked \t|\n"
-                        + "fee charged: " + nf.format(pr.getFeePaid()) + "\t| \n"
-                        + "--------------------" + '\n');
-
-
-            }
-        }
+//        String output = "";
+//        //Validate carID
+//        if (carID < 0 || garage == null) {
+//            throw new IllegalArgumentException(INVALID_INPUT);
+//        }
+//
+//        System.out.println("------------------------");
+//        System.out.println(garage.getName() + "\t\t|" + '\n'
+//                + garage.getStreet1() + "\t\t|" + '\n'
+//                + garage.getCity() + ", " + garage.getState() + " " + garage.getZip() + "\t|\n\t\t\t|");
+//
+//        for (ParkingReceipt pr : receipts) {
+//            if (carID == pr.getCarID()) {
+//                System.out.println(pr.getHoursParked() + " hours parked \t|\n"
+//                        + "fee charged: " + nf.format(pr.getFeePaid()) + "\t| \n"
+//                        + "--------------------" + '\n');
+//
+//
+//            }
+//        }
 
     }
 
@@ -394,34 +397,11 @@ public class AutomatedParkingMachine {
      * specific ID
      *
      * @param ticket
+     * @throws UnsupportedOperationException
      */
     public void checkCarOut(int carID) {
         throw new UnsupportedOperationException("Not supported yet.");
-        /*
-         boolean carFound = false;
-
-         //Validate input
-         if (carID < 0) {
-         throw new IllegalArgumentException(INVALID_INPUT);
-         }
-
-         //This loop finds ticket in the tickets array by carID and calculates it's fee
-         for (ParkingTicket pt : tickets) {
-         if (carID == pt.getCarID()) {
-         carFound = true;
-         this.calculateFee(pt);
-         pt.setCarCheckedOut(true);
-         this.addReceiptToArray(pt);
-
-         }
-         }
         
-         //If the car ID isn't found it outputs to the user that the car ID is invalid
-         if (!carFound) {
-         System.out.println("*******A car with an ID of "
-         + carID + " was not found in our system.*******");
-         }
-         */
     }
 
     /**

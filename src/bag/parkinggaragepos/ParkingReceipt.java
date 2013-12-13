@@ -59,15 +59,6 @@ public class ParkingReceipt {
      */
     public void outputReceipt(Garage garage){
         throw new UnsupportedOperationException("Not supported yet.");
-        /*
-        if(garage == null){
-            throw new IllegalArgumentException(INVALID_INPUT);
-        }
-        
-        System.out.println(garage.getName() + "\t\t" + sdf.format(dateTime)
-                + '\n' + garage.getStreet1()
-                + '\n' + garage.getCity() + ", " + garage.getState() + ' ' + garage.getState());
-        */
         
     }
 

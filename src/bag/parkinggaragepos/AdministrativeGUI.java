@@ -32,7 +32,7 @@ public class AdministrativeGUI extends javax.swing.JFrame {
         initComponents();
         this.setGUILook();
         this.getPropertiesFromFile();
-        System.out.println(configFile);
+        
 
     }
     /**
@@ -360,9 +360,9 @@ public class AdministrativeGUI extends javax.swing.JFrame {
                 if (s.endsWith("Calculator.class")) {
                     s = "bag.parkinggaragepos."+s.substring(0, s.length()-6);
                     calculator = (ParkingFeeCalculatorStrategy) Class.forName(s).newInstance();
-                    System.out.println(calculator.toString());
+                    
                     calculators.add(calculator);
-                    //System.out.println(s);
+                    
                 }
             } catch (ClassNotFoundException cnfe) {
                 JOptionPane.showMessageDialog(rootPane,cnfe.getMessage());

@@ -250,9 +250,12 @@ public class CheckInGUI extends javax.swing.JFrame {
         double hours = Double.parseDouble(txtHours.getText());
         try{
             txtOutput.append(garage.checkCarOut(carID, hours));
-        }catch(IllegalArgumentException iae){
-            JOptionPane.showMessageDialog(rootPane, iae.getMessage(), "Invalid input", JOptionPane.ERROR_MESSAGE);
+        }catch(CarNotFoundException cnfe){
+            JOptionPane.showMessageDialog(null, cnfe.getMessage());
         }
+//        catch(IllegalArgumentException iae){
+//            JOptionPane.showMessageDialog(rootPane, iae.getMessage(), "Invalid input", JOptionPane.ERROR_MESSAGE);
+//        }
         lblDailyCalculation.setText(garage.getTotalHoursAndFees());
         txtCarID.setText("");
         txtHours.setText("");

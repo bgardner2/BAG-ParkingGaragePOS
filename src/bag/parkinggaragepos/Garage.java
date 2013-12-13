@@ -53,7 +53,7 @@ public class Garage {
         apm.checkAllCarsOut();
     }
     
-    public String checkCarOut(int carID, double hours) {
+    public String checkCarOut(int carID, double hours) throws CarNotFoundException{
         if(carID < 0 || hours < 0){
             throw new IllegalArgumentException(INVALID_INPUT);
             
